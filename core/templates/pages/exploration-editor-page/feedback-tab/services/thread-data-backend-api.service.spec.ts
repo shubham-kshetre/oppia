@@ -95,7 +95,7 @@ describe('retrieving threads service', () => {
     mockSuggestions = [
       {
         author_name: 'author_1',
-        change: {
+        change_cmd: {
           skill_id: 'skill_id',
           new_value: {
             html: 'new content html'
@@ -111,7 +111,7 @@ describe('retrieving threads service', () => {
         suggestion_type: 'edit_exploration_state_content',
         target_id: 'exp1',
         target_type: 'exploration',
-      }
+      } as unknown as SuggestionBackendDict
     ];
     mockMessages = [
       {

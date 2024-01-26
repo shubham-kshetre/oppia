@@ -45,11 +45,12 @@ describe('SuggestionThreadObjectFactory', () => {
       target_id: 'exp1',
       status: 'accepted',
       author_name: 'author',
-      change: {
+      change_cmd: {
         skill_id: 'skill_id',
         state_name: 'state_1',
         new_value: { html: 'new suggestion content' },
-        old_value: { html: 'old suggestion content' }
+        old_value: { html: 'old suggestion content' },
+        content_id: 'content_id'
       },
       last_updated_msecs: 1000
     };

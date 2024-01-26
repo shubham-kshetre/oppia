@@ -46,6 +46,7 @@ from core.controllers import email_dashboard
 from core.controllers import features
 from core.controllers import feedback
 from core.controllers import feedback_updates
+from core.controllers import firebase
 from core.controllers import improvements
 from core.controllers import incoming_app_feedback_report
 from core.controllers import learner_dashboard
@@ -213,6 +214,10 @@ def get_redirect_route(
 
 # Register the URLs with the classes responsible for handling them.
 URLS = [
+    get_redirect_route(
+        '/<firebase_path:__/auth(?:/.*)?>',
+        firebase.FirebaseProxyPage
+    ),
     get_redirect_route(r'/_ah/warmup', WarmupPage),
     get_redirect_route(r'/splash', SplashRedirectPage),
     get_redirect_route(
@@ -266,12 +271,15 @@ URLS = [
         feconf.ACCESS_VALIDATION_HANDLER_PREFIX,
         access_validators.ViewLearnerGroupPageAccessValidationHandler),
 
-    get_redirect_route(r'%s' % feconf.ADMIN_URL, admin.AdminPage),
+    get_redirect_route(r'%s' % feconf.ADMIN_URL, oppia_root.OppiaRootPage),
     get_redirect_route(r'/adminhandler', admin.AdminHandler),
     get_redirect_route(r'/adminrolehandler', admin.AdminRoleHandler),
     get_redirect_route(r'/bannedusershandler', admin.BannedUsersHandler),
     get_redirect_route(
         r'/topicmanagerrolehandler', admin.TopicManagerRoleHandler),
+    get_redirect_route(
+        r'/translationcoordinatorrolehandler',
+        admin.TranslationCoordinatorRoleHandler),
     get_redirect_route(
         r'/adminsuperadminhandler', admin.AdminSuperAdminPrivilegesHandler),
     get_redirect_route(
@@ -291,6 +299,13 @@ URLS = [
     get_redirect_route(
         r'%s' % feconf.CONTRIBUTOR_DASHBOARD_ADMIN_URL,
         contributor_dashboard_admin.ContributorDashboardAdminPage),
+    get_redirect_route(
+        r'%s/<contribution_type>/<contribution_subtype>' % (
+            feconf.CONTRIBUTOR_DASHBOARD_ADMIN_STATS_URL_PREFIX),
+        contributor_dashboard_admin.ContributorDashboardAdminStatsHandler),
+    get_redirect_route(
+        r'%s' % (feconf.COMMUNITY_CONTRIBUTION_STATS_URL),
+        contributor_dashboard_admin.CommunityContributionStatsHandler),
     get_redirect_route(
         r'/translationcontributionstatshandler',
         contributor_dashboard_admin.TranslationContributionStatsHandler),
@@ -340,6 +355,10 @@ URLS = [
     get_redirect_route(
         r'%s' % feconf.REVIEWABLE_OPPORTUNITIES_URL,
         contributor_dashboard.ReviewableOpportunitiesHandler),
+    get_redirect_route(
+        r'%s' % feconf.PINNED_OPPORTUNITIES_URL,
+        contributor_dashboard.LessonsPinningHandler,
+    ),
     get_redirect_route(
         r'/gettranslatabletexthandler',
         contributor_dashboard.TranslatableTextHandler),
@@ -422,6 +441,9 @@ URLS = [
     get_redirect_route(
         r'%s' % feconf.CLASSROOM_ADMIN_DATA_HANDLER_URL,
         classroom.ClassroomAdminDataHandler),
+    get_redirect_route(
+        r'%s' % feconf.UNUSED_TOPICS_HANDLER_URL,
+        classroom.UnusedTopicsHandler),
     get_redirect_route(
         r'%s' % feconf.NEW_CLASSROOM_ID_HANDLER_URL,
         classroom.NewClassroomIdHandler),
@@ -593,7 +615,6 @@ URLS = [
     get_redirect_route(r'/userinfohandler', profile.UserInfoHandler),
     get_redirect_route(r'/userinfohandler/data', profile.UserInfoHandler),
     get_redirect_route(r'/url_handler', profile.UrlHandler),
-    get_redirect_route(r'/moderator', moderator.ModeratorPage),
     get_redirect_route(
         r'/moderatorhandler/featured', moderator.FeaturedActivitiesHandler),
     get_redirect_route(
@@ -969,8 +990,6 @@ URLS = [
         improvements.ExplorationImprovementsConfigHandler),
 
     get_redirect_route(
-        r'%s' % feconf.BLOG_ADMIN_PAGE_URL, blog_admin.BlogAdminPage),
-    get_redirect_route(
         r'%s' % feconf.BLOG_ADMIN_ROLE_HANDLER_URL,
         blog_admin.BlogAdminRolesHandler),
     get_redirect_route(
@@ -1142,7 +1161,7 @@ URLS.extend((
         oppia_root.OppiaRootPage),
     get_redirect_route(
         r'/learn/<classroom_url_fragment>',
-        oppia_root.OppiaLightweightRootPage
+        oppia_root.OppiaRootPage
     ),
     get_redirect_route(
         r'%s/<blog_post_url>' % feconf.BLOG_HOMEPAGE_URL,
@@ -1183,8 +1202,8 @@ URLS.extend((
     get_redirect_route(
         r'/cron/users/dashboard_stats', cron.CronDashboardStatsHandler),
     get_redirect_route(
-        r'/cron/suggestions/translation_contribution_stats',
-        cron.CronTranslationContributionStatsHandler),
+        r'/cron/mail/curriculum_admins/chapter_publication_notfications',
+        cron.CronMailChapterPublicationsNotificationsHandler),
 ))
 
 # Add tasks urls.

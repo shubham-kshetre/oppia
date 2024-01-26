@@ -121,9 +121,6 @@ import { SkillMasteryBackendApiService } from 'domain/skill/skill-mastery-backen
 import { SkillRightsBackendApiService } from 'domain/skill/skill-rights-backend-api.service';
 import { SkillUpdateService } from 'domain/skill/skill-update.service';
 import { StateObjectFactory } from 'domain/state/StateObjectFactory';
-import { LearnerActionObjectFactory } from 'domain/statistics/LearnerActionObjectFactory';
-import { PlaythroughIssueObjectFactory } from 'domain/statistics/PlaythroughIssueObjectFactory';
-import { PlaythroughObjectFactory } from 'domain/statistics/PlaythroughObjectFactory';
 import { LearnerAnswerDetailsBackendApiService } from 'domain/statistics/learner-answer-details-backend-api.service';
 import { PlaythroughBackendApiService } from 'domain/statistics/playthrough-backend-api.service';
 import { StateTopAnswersStatsObjectFactory } from 'domain/statistics/state-top-answers-stats-object.factory';
@@ -181,6 +178,7 @@ import { ItemSelectionInputRulesService } from 'interactions/ItemSelectionInput/
 import { ItemSelectionInputValidationService } from 'interactions/ItemSelectionInput/directives/item-selection-input-validation.service';
 import { MathEquationInputRulesService } from 'interactions/MathEquationInput/directives/math-equation-input-rules.service';
 import { MathEquationInputValidationService } from 'interactions/MathEquationInput/directives/math-equation-input-validation.service';
+import { MultipleChoiceInputOrderedChoicesService } from 'interactions/MultipleChoiceInput/directives/multiple-choice-input-ordered-choices-service';
 import { MultipleChoiceInputRulesService } from 'interactions/MultipleChoiceInput/directives/multiple-choice-input-rules.service';
 import { MultipleChoiceInputValidationService } from 'interactions/MultipleChoiceInput/directives/multiple-choice-input-validation.service';
 import { MusicNotesInputRulesService } from 'interactions/MusicNotesInput/directives/music-notes-input-rules.service';
@@ -441,9 +439,16 @@ import { DiagnosticTestPlayerEngineService } from 'pages/exploration-player-page
 import { DiagnosticTestPlayerStatusService } from 'pages/diagnostic-test-player-page/diagnostic-test-player-status.service';
 import { RteHelperService } from 'services/rte-helper.service';
 import { HtmlLengthService } from 'services/html-length.service';
+import { ContributorDashboardAdminStatsBackendApiService } from 'pages/contributor-dashboard-admin-page/services/contributor-dashboard-admin-stats-backend-api.service';
+import { InsertScriptService } from './insert-script.service';
+import { IsLoggedInGuard } from 'pages/lightweight-oppia-root/routing/guards/is-logged-in.guard';
+import { AdminAuthGuard } from 'pages/admin-page/admin-auth.guard';
+import { ModeratorAuthGuard } from 'pages/moderator-page/moderator-auth.guard';
+import { BlogAdminAuthGuard } from 'pages/blog-admin-page/blog-admin-auth.guard';
 
 export const angularServices: [string, Type<{}>][] = [
   ['AccessValidationBackendApiService', AccessValidationBackendApiService],
+  ['AdminAuthGuard', AdminAuthGuard],
   ['AdminBackendApiService', AdminBackendApiService],
   ['AdminDataService', AdminDataService],
   ['AdminRouterService', AdminRouterService],
@@ -471,6 +476,7 @@ export const angularServices: [string, Type<{}>][] = [
   ['AutoplayedVideosService', AutoplayedVideosService],
   ['AutosaveInfoModalsService', AutosaveInfoModalsService],
   ['BackgroundMaskService', BackgroundMaskService],
+  ['BlogAdminAuthGuard', BlogAdminAuthGuard],
   ['BlogAdminBackendApiService', BlogAdminBackendApiService],
   ['BlogAdminDataService', BlogAdminDataService],
   ['BlogDashboardBackendApiService', BlogDashboardBackendApiService],
@@ -653,9 +659,9 @@ export const angularServices: [string, Type<{}>][] = [
   ['InteractiveMapValidationService', InteractiveMapValidationService],
   ['ItemSelectionInputRulesService', ItemSelectionInputRulesService],
   ['ItemSelectionInputValidationService', ItemSelectionInputValidationService],
+  ['IsLoggedInGuard', IsLoggedInGuard],
   ['KeyboardShortcutService', KeyboardShortcutService],
   ['LanguageUtilService', LanguageUtilService],
-  ['LearnerActionObjectFactory', LearnerActionObjectFactory],
   ['LearnerAnswerDetailsBackendApiService',
     LearnerAnswerDetailsBackendApiService],
   ['LearnerDashboardBackendApiService', LearnerDashboardBackendApiService],
@@ -685,6 +691,9 @@ export const angularServices: [string, Type<{}>][] = [
   ['MetaTagCustomizationService', MetaTagCustomizationService],
   ['MisconceptionObjectFactory', MisconceptionObjectFactory],
   ['ModeratorPageBackendApiService', ModeratorPageBackendApiService],
+  ['ModeratorAuthGuard', ModeratorAuthGuard],
+  ['MultipleChoiceInputOrderedChoicesService',
+    MultipleChoiceInputOrderedChoicesService],
   ['MultipleChoiceInputRulesService', MultipleChoiceInputRulesService],
   ['MultipleChoiceInputValidationService',
     MultipleChoiceInputValidationService],
@@ -727,9 +736,7 @@ export const angularServices: [string, Type<{}>][] = [
   ['PlayerPositionService', PlayerPositionService],
   ['PlayerTranscriptService', PlayerTranscriptService],
   ['PlaythroughBackendApiService', PlaythroughBackendApiService],
-  ['PlaythroughIssueObjectFactory', PlaythroughIssueObjectFactory],
   ['PlaythroughIssuesBackendApiService', PlaythroughIssuesBackendApiService],
-  ['PlaythroughObjectFactory', PlaythroughObjectFactory],
   ['PopulateRuleContentIdsService', PopulateRuleContentIdsService],
   ['PlaythroughService', PlaythroughService],
   ['PreventPageUnloadEventService', PreventPageUnloadEventService],
@@ -917,5 +924,8 @@ export const angularServices: [string, Type<{}>][] = [
   ['VersionHistoryService', VersionHistoryService],
   ['VoiceoverRecordingService', VoiceoverRecordingService],
   ['RteHelperService', RteHelperService],
-  ['HtmlLengthService', HtmlLengthService]
+  ['HtmlLengthService', HtmlLengthService],
+  ['ContributorDashboardAdminStatsBackendApiService',
+    ContributorDashboardAdminStatsBackendApiService],
+  ['InsertScriptService', InsertScriptService]
 ];

@@ -452,7 +452,9 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
   }
 
   saveAndPublishQuestion(commitMessage: string | null): void {
-    let validationErrors = this.question.getValidationErrorMessage();
+    let validationErrors = (
+      this.questionValidationService.getValidationErrorMessage(
+        this.question));
     let unaddressedMisconceptions = (
       this.question.getUnaddressedMisconceptionNames(
         this.misconceptionsBySkill));
@@ -488,6 +490,10 @@ export class QuestionsListComponent implements OnInit, OnDestroy {
         this.alertsService.addSuccessMessage(
           'Question created successfully.');
         this._initTab(true);
+      }, (error) => {
+        this.alertsService.addWarning(
+          error || 'There was an error saving the question.');
+        this.questionIsBeingSaved = false;
       });
     } else {
       if (this.questionUndoRedoService.hasChanges()) {

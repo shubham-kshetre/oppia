@@ -72,6 +72,83 @@ PLATFORM_PARAMS_TO_SHOW_IN_RC_PAGE = set([
     platform_parameter_list.ParamNames.PROMO_BAR_MESSAGE.value
 ])
 
+# Platform parameters that we plan to show on the blog admin page.
+PLATFORM_PARAMS_TO_SHOW_IN_BLOG_ADMIN_PAGE = set([
+    (
+        platform_parameter_list.ParamNames.
+        MAX_NUMBER_OF_TAGS_ASSIGNED_TO_BLOG_POST.value
+    )
+])
+
+supported_languages: List[str] = [
+    lang['id'] for lang in constants.SUPPORTED_AUDIO_LANGUAGES]
+
+EDUCATION_BLOG_POST_TITLE = 'Education'
+
+EDUCATION_BLOG_POST_CONTENT = """
+    <p>
+        Education is a constantly evolving landscape, and innovation lies at its core. 
+        This summer, Oppia had the privilege of hosting a group of exceptional minds 
+        through the prestigious Google Summer of Code (GSoC) program. These talented 
+        individuals embarked on a journey to transform learning, one code at a time.
+    </p>\n
+    <p>
+        You should check out main 
+        <oppia-noninteractive-link 
+            text-with-value=\"&amp;quot;website.&amp;quot;\" 
+            url-with-value=\"&amp;quot;https://www.oppia.org&amp;quot;\">
+        </oppia-noninteractive-link><br>\n&nbsp;
+    </p>\n\n
+    <p>Introduction to Oppia - Youtube Video</p>
+    <oppia-noninteractive-video 
+        autoplay-with-value=\"false\" 
+        end-with-value=\"0\" 
+        start-with-value=\"0\" 
+        video_id-with-value=\"&amp;quot;Wmvt-HH5-dI&amp;quot;\">
+    </oppia-noninteractive-video>
+"""
+
+FORMATTING_BLOG_POST_TITLE = 'Blog with different font formatting'
+
+FORMATTING_BLOG_POST_CONTENT = """
+    <h1>Heading</h1>\n\n
+    <p>This is the normal text.</p>\n\n
+    <p><strong>Bold Text.</strong></p>\n\n
+    <p><em>Italic Text.</em></p>\n\n
+    <p><em><strong>Bold Italic.</strong></em></p>\n\n
+    Numbered List:</div>\n\n<ol>\n\t<li>List item&nbsp;</li>\n\t<li>List item\n\t<ol>\n\t\t<li>Sub list item</li>\n\t</ol>\n\t</li>\n</ol>\n\n
+    <p>Bullet List:</p>\n\n<ul>\n\t<li>List item</li>\n\t<li>List item\n\t<ul>\n\t\t<li>Sub list item</li>\n\t</ul>\n\t</li>\n</ul>\n\n
+    <pre>This is content in pre.</pre>\n\n
+    <blockquote>\n<p>Quote from some famous person. Two empty lines after this quote.</p>\n</blockquote>\n\n
+    <p>&nbsp;</p>\n\n<p>&nbsp;</p>\n\n<p>End of blog.</p>
+"""
+
+ARABIC_BLOG_POST_TITLE = 'Leading The Arabic Translations Team'
+
+ARABIC_BLOG_POST_CONTENT = """
+    <h1>Introduction:</h1>\n
+    <oppia-noninteractive-image alt-with-value=\"Oppia Arabic Blogpost Graphic\" caption-with-value=\"&amp;quot;&amp;quot;\" filepath-with-value=\"&amp;quot;blog_post_image_height_326_width_490.svg&amp;quot;\"></oppia-noninteractive-image>\n\n
+    <p><strong>Editor’s note:</strong> <em>The Arabic team at Oppia plays a pivotal role in breaking down language barriers and making educational content accessible to Arabic-speaking learners. One of the primary challenges lies in finding a suitable tone and language that can resonate with all Arabic-speaking regions, each of which has its unique dialects.</em></p>\n\n
+    <p><em>In this blog post, our team lead, Sarah, explains how teamwork can lead not only to professional accomplishments but also personal growth and lasting connections. The Arabic team's journey exemplifies the transformative power of collaboration, cultural exchange, and the profound impact of education on individuals and communities.</em></p>\n\n<p>Translating educational lessons presents a unique set of challenges, particularly when it comes to bridging language barriers and adapting content to suit diverse regional dialects. In this blog post, we will delve into the experiences of our dedicated team and explore how we tackled these obstacles head-on. We will also highlight the inspiring stories of past members, shedding light on their motivations and the invaluable skills they acquired through their contributions.</p>\n\n<p>&nbsp;</p>\n\n<h1>Finding the Right Tone and Language</h1>\n\n\n
+    <p>Contributing to this project offered more than just an opportunity to make a difference. For many of us, it served as a valuable stepping stone in our career paths. As an example, some of our team members were students, and through their involvement, they received practical experience and exposure to real-world challenges. This helped them develop essential skills such as teamwork, project management, and time management. We expect these acquired competencies to prove beneficial in their future professional endeavors.</p>\n\n
+    <h1>Conclusion</h1>\n\n
+    <p>Overcoming the challenges associated with translating lessons into Arabic required a dedicated and passionate team. By focusing on finding the right tone and language, our team members collaborated to ensure that educational content reached a wider audience across diverse Arabic-speaking regions. Through their contributions, they not only empowered learners but also experienced personal growth and acquired valuable skills. With this blog post, I would like to thank and celebrate the contributions of all the members of Oppia’s Arabic translation team. Our journey together stands as a testament to the power of teamwork, cultural exchange, and the positive impact of education on individuals and communities.</p>\n\n
+    <h1>Arabic hashtags:</h1>\n\n
+    <p>&nbsp;#تحديات_الترجمة</p>\n\n
+    <p>&nbsp;#حاجز_اللغة</p>\n\n
+    <p>&nbsp;#محتوى_تعليمي</p>\n\n
+    <p>&nbsp;#ترجمة_عربية</p>\n\n
+    <p>&nbsp;#تبادل_ثقافي</p>\n\n
+    <p>&nbsp;#العمل_الجماعي</p>\n\n
+    <p>&nbsp;#مسار_المهنة</p>\n\n
+    <p>&nbsp;#التعليم_مهم</p>\n\n
+    <h1>Credit:</h1>\n\n
+    <ul>\n\t
+    <li>This blogpost was written by Sarah Bendiff who currently leads Oppia's Arabic Translations Team.</li>\n\t
+    <li>Edits were done by all of the marketing team! (Thanks to the best teammates)</li>
+    </ul>
+"""
+
 
 class ClassroomPageDataDict(TypedDict):
     """Dict representation of classroom page's data dictionary."""
@@ -86,21 +163,6 @@ class ClassroomPageDataDict(TypedDict):
 AllowedAdminConfigPropertyValueTypes = Union[
     str, bool, float, Dict[str, str], List[str], ClassroomPageDataDict
 ]
-
-
-class AdminPage(
-    base.BaseHandler[Dict[str, str], Dict[str, str]]
-):
-    """Admin page shown in the App Engine admin console."""
-
-    URL_PATH_ARGS_SCHEMAS: Dict[str, str] = {}
-    HANDLER_ARGS_SCHEMAS: Dict[str, Dict[str, str]] = {'GET': {}}
-
-    @acl_decorators.can_access_admin_page
-    def get(self) -> None:
-        """Renders the admin page."""
-
-        self.render_template('admin-page.mainpage.html')
 
 
 class AdminHandlerNormalizePayloadDict(TypedDict):
@@ -123,6 +185,7 @@ class AdminHandlerNormalizePayloadDict(TypedDict):
     commit_message: Optional[str]
     new_rules: Optional[List[parameter_domain.PlatformParameterRule]]
     exp_id: Optional[str]
+    blog_post_title: Optional[str]
     default_value: Dict[str, parameter_domain.PlatformDataTypes]
 
 
@@ -144,6 +207,7 @@ class AdminHandler(
                         'generate_dummy_explorations', 'clear_search_index',
                         'generate_dummy_new_structures_data',
                         'generate_dummy_new_skill_data',
+                        'generate_dummy_blog_post',
                         'generate_dummy_classroom',
                         'save_config_properties', 'revert_config_property',
                         'upload_topic_similarities',
@@ -229,6 +293,17 @@ class AdminHandler(
                 },
                 'default_value': None
             },
+            'blog_post_title': {
+                'schema': {
+                    'type': 'basestring',
+                    'choices': [
+                        ARABIC_BLOG_POST_TITLE,
+                        EDUCATION_BLOG_POST_TITLE,
+                        FORMATTING_BLOG_POST_TITLE,
+                    ]
+                },
+                'default_value': None
+            },
             'exp_id': {
                 'schema': {
                     'type': 'basestring'
@@ -260,18 +335,18 @@ class AdminHandler(
             feature_services.
             get_all_platform_parameters_except_feature_flag_dicts()
         )
-        # Removes promo-bar related platform params as promo-bar is handled by
-        # release coordinators in /release-coordinator page.
+        # Removes promo-bar related and blog related platform params as
+        # they are handled in release-coordinator page and blog admin page
+        # respectively.
         platform_params_dicts = [
             param for param in platform_params_dicts
-            if param['name'] not in PLATFORM_PARAMS_TO_SHOW_IN_RC_PAGE
+            if (
+                param['name'] not in PLATFORM_PARAMS_TO_SHOW_IN_RC_PAGE and
+                param['name'] not in PLATFORM_PARAMS_TO_SHOW_IN_BLOG_ADMIN_PAGE
+            )
         ]
 
         config_properties = config_domain.Registry.get_config_property_schemas()
-
-        # Remove blog related configs as they will be handled by 'blog admins'
-        # on blog admin page.
-        del config_properties['max_number_of_tags_assigned_to_blog_post']
 
         self.render_json({
             'config_properties': config_properties,
@@ -312,12 +387,12 @@ class AdminHandler(
                 regenerate_topic_related_opportunities.
             Exception. The exp_id' must be provided when the action is
                 rollback_exploration_to_safe_state.
-            Exception. The feature_name must be provided when the action
-                is update_feature_flag_rules.
+            Exception. The platform_param_name must be provided when the action
+                is update_platform_parameter_rules.
             Exception. The new_rules must be provided when the action is
-                update_feature_flag_rules.
+                update_platform_parameter_rules.
             Exception. The commit_message must be provided when the action
-                is update_feature_flag_rules.
+                is update_platform_parameter_rules.
             InvalidInputException. The input provided is not valid.
         """
         assert self.user_id is not None
@@ -363,6 +438,14 @@ class AdminHandler(
 
                 self._generate_dummy_explorations(
                     num_dummy_exps_to_generate, num_dummy_exps_to_publish)
+            elif action == 'generate_dummy_blog_post':
+                blog_post_title = self.normalized_payload.get('blog_post_title')
+                if blog_post_title is None:
+                    raise Exception(
+                        'The \'blog_post_title\' must be provided when the'
+                        ' action is generate_dummy_blog_post.'
+                    )
+                self._load_dummy_blog_post(blog_post_title)
             elif action == 'clear_search_index':
                 search_services.clear_collection_search_index()
                 search_services.clear_exploration_search_index()
@@ -610,6 +693,73 @@ class AdminHandler(
         skill.update_explanation(state_domain.SubtitledHtml('1', explanation))
         return skill
 
+    def _load_dummy_blog_post(self, blog_post_title: str) -> None:
+        """Loads the database with a blog post.
+
+        Raises:
+            Exception. Cannot load new blog post in production mode.
+        """
+        assert self.user_id is not None
+        if not constants.DEV_MODE:
+            raise Exception('Cannot load new blog post in production mode.')
+
+        blog_post = blog_services.create_new_blog_post(self.user_id)
+        fs = fs_services.GcsFileSystem('blog_post', blog_post.id)
+        with open(
+            './assets/images/general/learner1.png', 'rb'
+        ) as thumbnail:
+            fs.commit(
+                'thumbnail/blog_thumbnail.png',
+                thumbnail.read(),
+                'image/png'
+            )
+        with open(
+            './assets/images/subjects/Art.svg', 'rb'
+        ) as image:
+            fs.commit(
+                'image/blog_post_image_height_326_width_490.svg',
+                image.read(),
+                'image/svg+xml'
+            )
+
+        if blog_post_title == EDUCATION_BLOG_POST_TITLE:
+            blog_services.update_blog_post(blog_post.id, {
+                'title':
+                    '%s-%s' % (EDUCATION_BLOG_POST_TITLE, blog_post.id),
+                'thumbnail_filename': 'blog_thumbnail.png',
+                'content': EDUCATION_BLOG_POST_CONTENT,
+                'tags': ['Community']
+            })
+        elif blog_post_title == FORMATTING_BLOG_POST_TITLE:
+            blog_services.update_blog_post(blog_post.id, {
+                'title':
+                    '%s-%s' % (FORMATTING_BLOG_POST_TITLE, blog_post.id),
+                'content': FORMATTING_BLOG_POST_CONTENT,
+                'tags': ['Learners', 'Languages'],
+                'thumbnail_filename': 'blog_thumbnail.png'
+            })
+        else:
+            # The handler schema defines the possible values of
+            # 'blog_post_title'. If 'blog_post_title' has a value other than
+            # those defined in the schema, a Bad Request error will be thrown.
+            # Hence, 'blog_post_title' must be 'ARABIC_BLOG_POST_TITLE' if
+            # this branch is executed.
+            assert blog_post_title == ARABIC_BLOG_POST_TITLE
+            blog_services.update_blog_post(blog_post.id, {
+                'title':
+                    '%s-%s' % (ARABIC_BLOG_POST_TITLE, blog_post.id),
+                'content': ARABIC_BLOG_POST_CONTENT,
+                'tags': [
+                    'Learners',
+                    'Volunteer',
+                    'New features',
+                    'Community',
+                    'Languages'
+                ],
+                'thumbnail_filename': 'blog_thumbnail.png'
+            })
+        blog_services.publish_blog_post(blog_post.id)
+
     def _load_dummy_new_structures_data(self) -> None:
         """Loads the database with two topics (one of which is empty), a story
         and three skills in the topic (two of them in a subtopic) and a question
@@ -625,14 +775,17 @@ class AdminHandler(
                 raise Exception(
                     'User does not have enough rights to generate data.')
             topic_id_1 = topic_fetchers.get_new_topic_id()
-            topic_id_2 = topic_fetchers.get_new_topic_id()
             story_id = story_services.get_new_story_id()
+
             skill_id_1 = skill_services.get_new_skill_id()
             skill_id_2 = skill_services.get_new_skill_id()
             skill_id_3 = skill_services.get_new_skill_id()
+
             question_id_1 = question_services.get_new_question_id()
             question_id_2 = question_services.get_new_question_id()
             question_id_3 = question_services.get_new_question_id()
+            question_id_4 = question_services.get_new_question_id()
+            question_id_5 = question_services.get_new_question_id()
 
             skill_1 = self._create_dummy_skill(
                 skill_id_1, 'Dummy Skill 1', '<p>Dummy Explanation 1</p>')
@@ -647,12 +800,22 @@ class AdminHandler(
                 question_id_2, 'Question 2', [skill_id_2])
             question_3 = self._create_dummy_question(
                 question_id_3, 'Question 3', [skill_id_3])
+            question_4 = self._create_dummy_question(
+                question_id_4, 'Question 4', [skill_id_1])
+            question_5 = self._create_dummy_question(
+                question_id_5, 'Question 5', [skill_id_1])
             question_services.add_question(self.user_id, question_1)
             question_services.add_question(self.user_id, question_2)
             question_services.add_question(self.user_id, question_3)
+            question_services.add_question(self.user_id, question_4)
+            question_services.add_question(self.user_id, question_5)
 
             question_services.create_new_question_skill_link(
                 self.user_id, question_id_1, skill_id_1, 0.3)
+            question_services.create_new_question_skill_link(
+                self.user_id, question_id_4, skill_id_1, 0.3)
+            question_services.create_new_question_skill_link(
+                self.user_id, question_id_5, skill_id_1, 0.3)
             question_services.create_new_question_skill_link(
                 self.user_id, question_id_2, skill_id_2, 0.5)
             question_services.create_new_question_skill_link(
@@ -661,15 +824,29 @@ class AdminHandler(
             topic_1 = topic_domain.Topic.create_default_topic(
                 topic_id_1, 'Dummy Topic 1', 'dummy-topic-one', 'description',
                 'fragm')
-            topic_2 = topic_domain.Topic.create_default_topic(
-                topic_id_2, 'Empty Topic', 'empty-topic', 'description',
-                'fragm')
 
+            topic_1.update_meta_tag_content('dummy-meta')
+            raw_image = b''
+            with open(
+                'core/tests/data/thumbnail.svg', 'rt',
+                encoding='utf-8') as svg_file:
+                svg_file_content = svg_file.read()
+                raw_image = svg_file_content.encode('ascii')
+            fs_services.save_original_and_compressed_versions_of_image(
+                'thumbnail.svg', feconf.ENTITY_TYPE_TOPIC, topic_id_1,
+                raw_image, 'thumbnail', False)
+            topic_services.update_thumbnail_filename(topic_1, 'thumbnail.svg')
+            topic_1.update_thumbnail_bg_color('#C6DCDA')
             topic_1.add_canonical_story(story_id)
             topic_1.add_uncategorized_skill_id(skill_id_1)
             topic_1.add_uncategorized_skill_id(skill_id_2)
             topic_1.add_uncategorized_skill_id(skill_id_3)
+            topic_1.update_skill_ids_for_diagnostic_test([skill_id_1])
             topic_1.add_subtopic(1, 'Dummy Subtopic Title', 'dummysubtopic')
+            topic_services.update_subtopic_thumbnail_filename(
+                topic_1, 1, 'thumbnail.svg')
+            topic_1.update_subtopic_thumbnail_bg_color(
+                1, constants.ALLOWED_THUMBNAIL_BG_COLORS['subtopic'][0])
             topic_1.move_skill_id_to_subtopic(None, 1, skill_id_2)
             topic_1.move_skill_id_to_subtopic(None, 1, skill_id_3)
 
@@ -762,7 +939,6 @@ class AdminHandler(
             skill_services.save_new_skill(self.user_id, skill_3)
             story_services.save_new_story(self.user_id, story)
             topic_services.save_new_topic(self.user_id, topic_1)
-            topic_services.save_new_topic(self.user_id, topic_2)
             subtopic_page_services.save_subtopic_page(
                 self.user_id, subtopic_page, 'Added subtopic',
                 [topic_domain.TopicChange({
@@ -779,6 +955,7 @@ class AdminHandler(
                 story_id, exp_ids_in_story)
 
             topic_services.publish_story(topic_id_1, story_id, self.user_id)
+            topic_services.publish_topic(topic_id_1, self.user_id)
         else:
             raise Exception('Cannot load new structures data in production.')
 
@@ -1236,7 +1413,7 @@ class AdminRoleHandler(
         }
     }
 
-    @acl_decorators.can_access_admin_page
+    @acl_decorators.open_access
     def get(self) -> None:
         """Retrieves information about users based on different filter
         criteria to populate the roles tab.
@@ -1301,13 +1478,20 @@ class AdminRoleHandler(
             user_settings = user_services.get_user_settings(user_id)
             user_roles = user_settings.roles
             managed_topic_ids = []
+            coordinated_language_ids = []
             if feconf.ROLE_ID_TOPIC_MANAGER in user_roles:
                 managed_topic_ids = [
                     rights.id for rights in
                     topic_fetchers.get_topic_rights_with_user(user_id)]
+            if feconf.ROLE_ID_TRANSLATION_COORDINATOR in user_roles:
+                coordinated_language_ids = [
+                    rights.language_id for rights in
+                    user_services.get_translation_rights_with_user(
+                        user_id)]
             user_roles_dict = {
                 'roles': user_roles,
                 'managed_topic_ids': managed_topic_ids,
+                'coordinated_language_ids': coordinated_language_ids,
                 'banned': user_settings.banned
             }
             self.render_json(user_roles_dict)
@@ -1364,6 +1548,10 @@ class AdminRoleHandler(
 
         if role == feconf.ROLE_ID_TOPIC_MANAGER:
             topic_services.deassign_user_from_all_topics(self.user, user_id)
+
+        if role == feconf.ROLE_ID_TRANSLATION_COORDINATOR:
+            user_services.deassign_user_from_all_languages(
+                self.user, user_id)
 
         user_services.remove_user_role(user_id, role)
 
@@ -2070,4 +2258,90 @@ class UpdateBlogPostHandler(
 
         blog_services.update_blog_models_author_and_published_on_date(
             blog_post_id, author_id, published_on)
+        self.render_json({})
+
+
+class TranslationCoordinatorRoleHandlerNormalizedPayloadDict(TypedDict):
+    """Dict representation of TranslationCoordinatorRoleHandler's
+    normalized_payload dictionary.
+    """
+
+    username: str
+    action: str
+    language_id: str
+
+
+class TranslationCoordinatorRoleHandler(
+    base.BaseHandler[
+        TranslationCoordinatorRoleHandlerNormalizedPayloadDict, Dict[str, str]
+    ]
+):
+    """Handler to assign or deassigning coordinator to a language."""
+
+    GET_HANDLER_ERROR_RETURN_TYPE = feconf.HANDLER_TYPE_JSON
+    URL_PATH_ARGS_SCHEMAS: Dict[str, str] = {}
+    HANDLER_ARGS_SCHEMAS = {
+        'PUT': {
+            'username': {
+                'schema': {
+                    'type': 'basestring'
+                }
+            },
+            'action': {
+                'schema': {
+                    'type': 'basestring',
+                    'choices': ['assign', 'deassign']
+                }
+            },
+            'language_id': {
+                'schema': {
+                    'type': 'basestring',
+                    'choices': supported_languages
+                }
+            }
+        }
+    }
+
+    @acl_decorators.can_access_admin_page
+    def put(self) -> None:
+        """Adds or removes the translation-coordinator role for a user in the
+        context of a specific language.
+
+        Raises:
+            InvalidInputException. User with given username does not exist.
+        """
+        assert self.normalized_payload is not None
+        username = self.normalized_payload['username']
+        action = self.normalized_payload['action']
+        language_id = self.normalized_payload['language_id']
+
+        user_settings = user_services.get_user_settings_from_username(username)
+
+        if user_settings is None:
+            raise self.InvalidInputException(
+                'User with given username does not exist.')
+
+        user_id = user_settings.user_id
+        if action == 'assign':
+            if not feconf.ROLE_ID_TRANSLATION_COORDINATOR in (
+                user_settings.roles):
+                user_services.add_user_role(
+                    user_id, feconf.ROLE_ID_TRANSLATION_COORDINATOR)
+
+            language_coordinator = user_services.get_user_actions_info(user_id)
+
+            user_services.assign_coordinator(
+                user_services.get_system_user(),
+                language_coordinator, language_id)
+        else:
+            # The handler schema defines the possible values of 'action'.
+            # If 'action' has a value other than those defined in the schema,
+            # a Bad Request error will be thrown. Hence, 'action' must be
+            # 'deassign' if this branch is executed.
+            assert action == 'deassign'
+            language_coordinator = user_services.get_user_actions_info(user_id)
+            user_services.deassign_coordinator(
+                user_services.get_system_user(),
+                language_coordinator, language_id)
+
         self.render_json({})

@@ -36,7 +36,7 @@ describe('SuggestionsService', () => {
         target_id: '1',
         status: 'pending',
         author_name: 'someone',
-        change: {
+        change_cmd: {
           skill_id: 'skill_id',
           state_name: 'State 1',
           new_value: {
@@ -44,7 +44,8 @@ describe('SuggestionsService', () => {
           },
           old_value: {
             html: 'old value'
-          }
+          },
+          content_id: 'content'
         },
         last_updated_msecs: 10000000
       })).toEqual('exploration.exp1.abc1');

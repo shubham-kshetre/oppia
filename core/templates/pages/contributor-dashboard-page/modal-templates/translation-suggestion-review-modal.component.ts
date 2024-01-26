@@ -17,7 +17,7 @@
  * @fileoverview Component for translation suggestion review modal.
  */
 
-import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ViewChild, ElementRef, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { AlertsService } from 'services/alerts.service';
 import { ContextService } from 'services/context.service';
@@ -63,7 +63,7 @@ interface SuggestionChangeDict {
 
 interface ActiveSuggestionDict {
   'author_name': string;
-  'change': SuggestionChangeDict;
+  'change_cmd': SuggestionChangeDict;
   'exploration_content_html': string | string[] | null;
   'language_code': string;
   'last_updated_msecs': number;
@@ -85,7 +85,6 @@ enum ExpansionTabType {
   CONTENT,
   TRANSLATION
 }
-
 
 @Component({
   selector: 'oppia-translation-suggestion-review-modal',
@@ -138,6 +137,9 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
   isContentOverflowing: boolean = false;
   isTranslationExpanded: boolean = false;
   isTranslationOverflowing: boolean = false;
+  explorationImagesString: string = '';
+  suggestionImagesString: string = '';
+  @Input() altTextIsDisplayed: boolean = false;
 
   @ViewChild('contentPanel')
     contentPanel!: RteOutputDisplayComponent;
@@ -150,6 +152,9 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
 
   @ViewChild('translationContainer')
     translationContainer!: ElementRef;
+
+  @ViewChild('contentPanelWithAltText')
+    contentPanelWithAltText!: RteOutputDisplayComponent;
 
   HTML_SCHEMA: HTMLSchema = { type: 'html' };
   MAX_REVIEW_MESSAGE_LENGTH = AppConstants.MAX_REVIEW_MESSAGE_LENGTH;
@@ -193,9 +198,14 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
         .registerContributorDashboardViewSuggestionForReview('Translation');
       this.heading = 'Review Translation Contributions';
     }
+    const suggestionIds = Object.keys(this.suggestionIdToContribution);
+    const clickedSuggestionIndex = suggestionIds.indexOf(
+      this.activeSuggestionId);
+    this.skippedContributionIds = (
+      suggestionIds.slice(0, clickedSuggestionIndex));
     delete this.suggestionIdToContribution[this.initialSuggestionId];
-    this.remainingContributionIds = Object.keys(
-      this.suggestionIdToContribution);
+    this.remainingContributionIds = suggestionIds.slice(
+      clickedSuggestionIndex + 1, suggestionIds.length);
     this.remainingContributionIds.reverse();
     this.isLastItem = this.remainingContributionIds.length === 0;
     this.allContributions = this.suggestionIdToContribution;
@@ -235,7 +245,7 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
     this.isLastItem = this.remainingContributionIds.length === 0;
     this.isFirstItem = this.skippedContributionIds.length === 0;
     this.userCanReviewTranslationSuggestionsInLanguages = [];
-    this.languageCode = this.activeSuggestion.change.
+    this.languageCode = this.activeSuggestion.change_cmd.
       language_code;
     this.userService.getUserInfoAsync().then(userInfo => {
       const username = userInfo.getUsername();
@@ -268,22 +278,22 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
     this.lastSuggestionToReview = (
       Object.keys(this.allContributions).length <= 1);
     this.translationHtml = (
-      this.activeSuggestion.change.translation_html);
+      this.activeSuggestion.change_cmd.translation_html);
     this.status = this.activeSuggestion.status;
     this.contentHtml = (
-      this.activeSuggestion.change.content_html);
+      this.activeSuggestion.change_cmd.content_html);
     this.explorationContentHtml = (
       this.activeSuggestion.exploration_content_html);
     this.contentTypeIsHtml = (
-      this.activeSuggestion.change.data_format === 'html'
+      this.activeSuggestion.change_cmd.data_format === 'html'
     );
     this.contentTypeIsUnicode = (
-      this.activeSuggestion.change.data_format === 'unicode'
+      this.activeSuggestion.change_cmd.data_format === 'unicode'
     );
     this.contentTypeIsSetOfStrings = (
-      this.activeSuggestion.change.data_format ===
+      this.activeSuggestion.change_cmd.data_format ===
         'set_of_normalized_string' ||
-      this.activeSuggestion.change.data_format ===
+      this.activeSuggestion.change_cmd.data_format ===
         'set_of_unicode_string'
     );
     this.reviewMessage = '';
@@ -298,6 +308,10 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
         }
       });
     }
+    this.explorationImagesString = this.getImageInfoForSuggestion(
+      this.contentHtml);
+    this.suggestionImagesString = this.getImageInfoForSuggestion(
+      this.translationHtml);
     setTimeout(() => {
       this.computePanelOverflowState();
     }, 0);
@@ -341,13 +355,15 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
           reloadOpportunitiesEventEmitter.emit();
       },
       this.showTranslationSuggestionUpdateError);
+    this.suggestionImagesString = this.getImageInfoForSuggestion(
+      this.translationHtml);
   }
 
   // The length of the commit message should not exceed 375 characters,
   // since this is the maximum allowed commit message size.
   generateCommitMessage(): string {
-    const contentId = this.activeSuggestion.change.content_id;
-    const stateName = this.activeSuggestion.change.state_name;
+    const contentId = this.activeSuggestion.change_cmd.content_id;
+    const stateName = this.activeSuggestion.change_cmd.state_name;
     const contentType = contentId.split('_')[0];
     const commitMessage = `${contentType} section of "${stateName}" card`;
 
@@ -433,12 +449,13 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
       this.activeSuggestion.target_id, this.activeSuggestionId,
       AppConstants.ACTION_ACCEPT_SUGGESTION,
       reviewMessageForSubmitter, this.finalCommitMessage,
-      this.resolveSuggestionAndUpdateModal.bind(this),
-      (errorMessage) => {
-        this.rejectAndReviewNext(`Invalid Suggestion: ${errorMessage}`);
+      () => {
+        this.alertsService.clearMessages();
+        this.alertsService.addSuccessMessage('Suggestion accepted.');
+        this.resolveSuggestionAndUpdateModal();
+      }, (errorMessage) => {
         this.alertsService.clearWarnings();
-        this.alertsService.addWarning(
-          `Invalid Suggestion: ${errorMessage}`);
+        this.alertsService.addWarning(`Invalid Suggestion: ${errorMessage}`);
       });
   }
 
@@ -455,13 +472,14 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
         this.activeSuggestion.target_id, this.activeSuggestionId,
         AppConstants.ACTION_REJECT_SUGGESTION,
         reviewMessage || this.reviewMessage, null,
-        this.resolveSuggestionAndUpdateModal.bind(this),
-        (error) => {
+        () => {
+          this.alertsService.clearMessages();
+          this.alertsService.addSuccessMessage('Suggestion rejected.');
+          this.resolveSuggestionAndUpdateModal();
+        }, (errorMessage) => {
           this.alertsService.clearWarnings();
-          this.alertsService.addWarning(
-            'There was an error rejecting this suggestion');
-        }
-      );
+          this.alertsService.addWarning(`Invalid Suggestion: ${errorMessage}`);
+        });
     }
   }
 
@@ -520,7 +538,7 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
   }
 
   isDeprecatedTranslationSuggestionCommand(): boolean {
-    return this.activeSuggestion.change.cmd === 'add_translation';
+    return this.activeSuggestion.change_cmd.cmd === 'add_translation';
   }
 
   doesTranslationContainTags(): boolean {
@@ -544,5 +562,30 @@ export class TranslationSuggestionReviewModalComponent implements OnInit {
       this.editedContent.html = value;
       this.changeDetectorRef.detectChanges();
     }
+  }
+
+  /**
+   * Retrieves image information from the given content and
+   * returns it as a string.
+   * If the content is in the form of a string (not an array),
+   * it parses the content using a DOMParser and extracts the HTML
+   * for all 'oppia-noninteractive-image' elements. The extracted HTML
+   * is returned as a string.
+   * @param content The content containing image information (
+   * either a string or an array of strings).
+   * @returns A string representation of the extracted image information.
+   */
+  getImageInfoForSuggestion(content: string | string[]): string {
+    let htmlString = '';
+
+    // Images are present in form of strings not as Array of strings.
+    if (!Array.isArray(content)) {
+      this.altTextIsDisplayed = true;
+      const doc = new DOMParser().parseFromString(content, 'text/html');
+      const imgElements = doc.querySelectorAll('oppia-noninteractive-image');
+      htmlString = Array.from(imgElements).map((img) => img.outerHTML).join('');
+    }
+
+    return htmlString;
   }
 }

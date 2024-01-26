@@ -25,6 +25,7 @@ interface SuggestionChangeBackendDict {
   'new_value': SuggestionChangeValue;
   'old_value': SuggestionChangeValue;
   'skill_id': string;
+  'content_id': string;
 }
 
 export interface SuggestionBackendDict {
@@ -34,7 +35,7 @@ export interface SuggestionBackendDict {
   'target_id': string;
   'status': string;
   'author_name': string;
-  'change': SuggestionChangeBackendDict;
+  'change_cmd': SuggestionChangeBackendDict;
   'last_updated_msecs': number;
 }
 
@@ -80,9 +81,9 @@ export class Suggestion {
       suggestionBackendDict.target_id,
       suggestionBackendDict.status,
       suggestionBackendDict.author_name,
-      suggestionBackendDict.change.state_name,
-      suggestionBackendDict.change.new_value,
-      suggestionBackendDict.change.old_value,
+      suggestionBackendDict.change_cmd.state_name,
+      suggestionBackendDict.change_cmd.new_value,
+      suggestionBackendDict.change_cmd.old_value,
       suggestionBackendDict.last_updated_msecs);
   }
 

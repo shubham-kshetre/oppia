@@ -144,6 +144,7 @@ class ValidModelNames(enum.Enum):
     BASE_MODEL = 'base_model'
     BEAM_JOB = 'beam_job'
     BLOG = 'blog'
+    BLOG_STATISTICS = 'blog_statistics'
     CLASSIFIER = 'classifier'
     CLASSROOM = 'classroom'
     COLLECTION = 'collection'
@@ -166,6 +167,7 @@ class ValidModelNames(enum.Enum):
     TOPIC = 'topic'
     TRANSLATION = 'translation'
     USER = 'user'
+    VOICEOVER = 'voiceover'
 
 
 # A mapping of interaction ids to classifier properties.
@@ -492,6 +494,9 @@ XSSI_PREFIX = b')]}\'\n'
 # A regular expression for alphanumeric characters.
 ALPHANUMERIC_REGEX = r'^[A-Za-z0-9]+$'
 
+# A regular expression for language accent code.
+LANGUAGE_ACCENT_CODE_REGEX = r'^(([a-z]+)-)+([A-Z]+)$'
+
 # These are here rather than in rating_services.py to avoid import
 # circularities with exp_services.
 # TODO(Jacob): Refactor exp_services to remove this problem.
@@ -568,14 +573,13 @@ ENV_IS_OPPIA_ORG_PRODUCTION_SERVER = bool(OPPIA_PROJECT_ID == 'oppiaserver')
 DATAFLOW_TEMP_LOCATION = 'gs://todo/todo'
 DATAFLOW_STAGING_LOCATION = 'gs://todo/todo'
 
-OPPIA_VERSION = '3.3.1'
+OPPIA_VERSION = '3.3.4'
 OPPIA_PYTHON_PACKAGE_PATH = './build/oppia-beam-job-%s.tar.gz' % OPPIA_VERSION
 
 # Committer id for system actions. The username for the system committer
 # (i.e. admin) is also 'admin'.
 SYSTEM_COMMITTER_ID = 'admin'
 # Domain name for email address.
-INCOMING_EMAILS_DOMAIN_NAME = 'example.com'
 SYSTEM_EMAIL_ADDRESS = 'system@example.com'
 SYSTEM_EMAIL_NAME = '.'
 ADMIN_EMAIL_ADDRESS = 'testadmin@example.com'
@@ -652,8 +656,8 @@ EMAIL_INTENT_MARKETING = 'marketing'
 EMAIL_INTENT_UNPUBLISH_EXPLORATION = 'unpublish_exploration'
 EMAIL_INTENT_DELETE_EXPLORATION = 'delete_exploration'
 EMAIL_INTENT_QUERY_STATUS_NOTIFICATION = 'query_status_notification'
-EMAIL_INTENT_ONBOARD_REVIEWER = 'onboard_reviewer'
-EMAIL_INTENT_REMOVE_REVIEWER = 'remove_reviewer'
+EMAIL_INTENT_ONBOARD_CD_USER = 'onboard_cd_user'
+EMAIL_INTENT_REMOVE_CD_USER = 'remove_cd_user'
 EMAIL_INTENT_ADDRESS_CONTRIBUTOR_DASHBOARD_SUGGESTIONS = (
     'address_contributor_dashboard_suggestions'
 )
@@ -669,6 +673,9 @@ EMAIL_INTENT_ACCOUNT_DELETED = 'account_deleted'
 EMAIL_INTENT_NOTIFY_CONTRIBUTOR_DASHBOARD_ACHIEVEMENTS = (
     'notify_contributor_dashboard_achievements'
 )
+EMAIL_INTENT_NOTIFY_CURRICULUM_ADMINS_CHAPTERS = (
+    'notify_curriculum_admins_chapters'
+)
 # Possible intents for email sent in bulk.
 BULK_EMAIL_INTENT_MARKETING = 'bulk_email_marketing'
 BULK_EMAIL_INTENT_IMPROVE_EXPLORATION = 'bulk_email_improve_exploration'
@@ -677,6 +684,7 @@ BULK_EMAIL_INTENT_CREATOR_REENGAGEMENT = 'bulk_email_creator_reengagement'
 BULK_EMAIL_INTENT_LEARNER_REENGAGEMENT = 'bulk_email_learner_reengagement'
 BULK_EMAIL_INTENT_ML_JOB_FAILURE = 'bulk_email_ml_job_failure'
 BULK_EMAIL_INTENT_TEST = 'bulk_email_test'
+EMAIL_INTENT_ML_JOB_FAILURE = 'email_ml_job_failure'
 
 MESSAGE_TYPE_FEEDBACK = 'feedback'
 MESSAGE_TYPE_SUGGESTION = 'suggestion'
@@ -896,7 +904,6 @@ TASK_URL_DEFERRED = (
 ABOUT_FOUNDATION_PAGE_URL = '/about-foundation'
 ADMIN_URL = '/admin'
 ADMIN_ROLE_HANDLER_URL = '/adminrolehandler'
-BLOG_ADMIN_PAGE_URL = '/blog-admin'
 CLASSROOM_ADMIN_PAGE_URL = '/classroom-admin'
 BLOG_ADMIN_ROLE_HANDLER_URL = '/blogadminrolehandler'
 BLOG_DASHBOARD_DATA_URL = '/blogdashboardhandler/data'
@@ -925,7 +932,11 @@ CONTRIBUTOR_STATS_SUMMARIES_URL = '/contributorstatssummaries'
 CONTRIBUTOR_ALL_STATS_SUMMARIES_URL = '/contributorallstatssummaries'
 CONTRIBUTOR_CERTIFICATE_URL = '/contributorcertificate'
 CONTRIBUTOR_DASHBOARD_ADMIN_URL = '/contributor-dashboard-admin'
+CONTRIBUTOR_DASHBOARD_ADMIN_STATS_URL_PREFIX = (
+    '/contributor-dashboard-admin-stats')
+COMMUNITY_CONTRIBUTION_STATS_URL = '/community-contribution-stats'
 CONTRIBUTOR_OPPORTUNITIES_DATA_URL = '/opportunitiessummaryhandler'
+PINNED_OPPORTUNITIES_URL = '/pinned-opportunities'
 CREATOR_DASHBOARD_DATA_URL = '/creatordashboardhandler/data'
 CREATOR_DASHBOARD_URL = '/creator-dashboard'
 CSRF_HANDLER_URL = '/csrfhandler'
@@ -1083,6 +1094,7 @@ LEARNER_DASHBOARD_LEARNER_GROUPS_HANDLER = (
 CREATE_LEARNER_GROUP_PAGE_URL = '/create-learner-group'
 EDIT_LEARNER_GROUP_PAGE_URL = '/edit-learner-group'
 CLASSROOM_ADMIN_DATA_HANDLER_URL = '/classroom_admin_data_handler'
+UNUSED_TOPICS_HANDLER_URL = '/unused_topics'
 NEW_CLASSROOM_ID_HANDLER_URL = '/new_classroom_id_handler'
 CLASSROOM_HANDLER_URL = '/classroom'
 CLASSROOM_URL_FRAGMENT_HANDLER = '/classroom_url_fragment_handler'
@@ -1216,6 +1228,7 @@ ROLE_ID_TOPIC_MANAGER = 'TOPIC_MANAGER'
 ROLE_ID_TRANSLATION_ADMIN = 'TRANSLATION_ADMIN'
 ROLE_ID_VOICEOVER_ADMIN = 'VOICEOVER_ADMIN'
 ROLE_ID_QUESTION_COORDINATOR = 'QUESTION_COORDINATOR'
+ROLE_ID_TRANSLATION_COORDINATOR = 'TRANSLATION_COORDINATOR'
 
 ALLOWED_DEFAULT_USER_ROLES_ON_REGISTRATION = [
     ROLE_ID_FULL_USER, ROLE_ID_MOBILE_LEARNER]
@@ -1234,7 +1247,8 @@ ALLOWED_USER_ROLES = [
     ROLE_ID_TOPIC_MANAGER,
     ROLE_ID_TRANSLATION_ADMIN,
     ROLE_ID_VOICEOVER_ADMIN,
-    ROLE_ID_QUESTION_COORDINATOR
+    ROLE_ID_QUESTION_COORDINATOR,
+    ROLE_ID_TRANSLATION_COORDINATOR
 ]
 
 # Intent of the User making query to role structure via admin interface. Used
@@ -1601,11 +1615,12 @@ CONTRIBUTION_TYPE_TRANSLATION: Final = 'translation'
 CONTRIBUTION_TYPE_QUESTION: Final = 'question'
 CONTRIBUTION_SUBTYPE_ACCEPTANCE: Final = 'acceptance'
 CONTRIBUTION_SUBTYPE_REVIEW: Final = 'review'
+CONTRIBUTION_SUBTYPE_COORDINATE: Final = 'coordinate'
 CONTRIBUTION_SUBTYPE_EDIT: Final = 'edit'
 CONTRIBUTION_SUBTYPE_SUBMISSION: Final = 'submission'
 
 TRANSLATION_TEAM_LEAD = 'Anubhuti Varshney'
-QUESTION_TEAM_LEAD = 'Jatin Kumar Jadoun'
+QUESTION_TEAM_LEAD = 'Ryan Hsiao'
 
 # Suggestion fields that can be queried.
 ALLOWED_SUGGESTION_QUERY_FIELDS = [
@@ -1681,3 +1696,10 @@ class TranslatedContentDict(TypedDict):
     content_value: ContentValueType
     needs_update: bool
     content_format: str
+
+
+class VoiceoverType(enum.Enum):
+    """Represents all possible voicever types."""
+
+    AUTO = 'auto'
+    MANUAL = 'manual'

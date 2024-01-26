@@ -42,14 +42,13 @@ import { StateBackendDict } from 'domain/state/StateObjectFactory';
 import { ExplorationStats, ExplorationStatsBackendDict } from
   'domain/statistics/exploration-stats.model';
 import {
-  CyclicStateTransitionsPlaythroughIssue,
-  EarlyQuitPlaythroughIssue,
-  CyclicStateTransitionsPlaythroughIssueBackendDict,
-  EarlyQuitPlaythroughIssueBackendDict,
-  MultipleIncorrectSubmissionsPlaythroughIssueBackendDict,
-  MultipleIncorrectSubmissionsPlaythroughIssue,
-  PlaythroughIssueObjectFactory,
-} from 'domain/statistics/PlaythroughIssueObjectFactory';
+  PlaythroughIssue,
+  PlaythroughIssueType,
+  PlaythroughIssueBackendDict,
+  EarlyQuitCustomizationArgs,
+  CyclicStateTransitionsCustomizationArgs,
+  MultipleIncorrectSubmissionsCustomizationArgs,
+} from 'domain/statistics/playthrough-issue.model';
 import { StatesObjectFactory } from 'domain/exploration/StatesObjectFactory';
 import { ExplorationImprovementsTaskRegistryService } from
   'services/exploration-improvements-task-registry.service';
@@ -58,17 +57,16 @@ import { ExplorationImprovementsTaskRegistryService } from
 describe('Exploration improvements task registrar service', () => {
   let taskRegistryService: ExplorationImprovementsTaskRegistryService;
 
-  let playthroughIssueObjectFactory: PlaythroughIssueObjectFactory;
   let statesObjectFactory: StatesObjectFactory;
 
   let answerStatsBackendDict: AnswerStatsBackendDict;
   let cstPlaythroughIssueBackendDict:
-    CyclicStateTransitionsPlaythroughIssueBackendDict;
+    PlaythroughIssueBackendDict;
   let eqPlaythroughIssueBackendDict:
-    EarlyQuitPlaythroughIssueBackendDict;
+    PlaythroughIssueBackendDict;
   let expStatsBackendDict: ExplorationStatsBackendDict;
   let misPlaythroughIssueBackendDict:
-    MultipleIncorrectSubmissionsPlaythroughIssueBackendDict;
+    PlaythroughIssueBackendDict;
   let stateBackendDict: StateBackendDict;
   let stateStatsBackendDict: StateStatsBackendDict;
   let statesBackendDict: {[stateName: string]: StateBackendDict};
@@ -82,7 +80,6 @@ describe('Exploration improvements task registrar service', () => {
     taskRegistryService = (
       TestBed.get(ExplorationImprovementsTaskRegistryService));
 
-    playthroughIssueObjectFactory = TestBed.get(PlaythroughIssueObjectFactory);
     statesObjectFactory = TestBed.get(StatesObjectFactory);
 
     config = new ExplorationImprovementsConfig(
@@ -172,38 +169,40 @@ describe('Exploration improvements task registrar service', () => {
     };
 
     cstPlaythroughIssueBackendDict = {
-      issue_type: 'CyclicStateTransitions',
+      issue_type: PlaythroughIssueType.CyclicStateTransitions,
       issue_customization_args: {
         state_names: {
-          value: ['Middle', 'Introduction']
-        }
-      },
+          value: ['Middle', 'Introduction'],
+        },
+      } as CyclicStateTransitionsCustomizationArgs,
       playthrough_ids: ['pid'],
       schema_version: 1,
       is_valid: true,
     };
 
     eqPlaythroughIssueBackendDict = {
-      issue_type: 'EarlyQuit',
+      issue_type: PlaythroughIssueType.EarlyQuit,
       issue_customization_args: {
         state_name: {
-          value: 'Introduction'
+          value: 'Introduction',
         },
         time_spent_in_exp_in_msecs: {
-          value: 1200
-        }
-      },
+          value: 1200,
+        },
+      } as EarlyQuitCustomizationArgs,
       playthrough_ids: ['pid'],
       schema_version: 1,
       is_valid: true,
     };
 
     misPlaythroughIssueBackendDict = {
-      issue_type: 'MultipleIncorrectSubmissions',
+      issue_type: PlaythroughIssueType.MultipleIncorrectSubmissions,
       issue_customization_args: {
         state_name: { value: 'Introduction' },
-        num_times_answered_incorrectly: { value: 3 },
-      },
+        num_times_answered_incorrectly: {
+          value: 3,
+        },
+      } as MultipleIncorrectSubmissionsCustomizationArgs,
       playthrough_ids: ['pid'],
       schema_version: 1,
       is_valid: true,
@@ -244,18 +243,17 @@ describe('Exploration improvements task registrar service', () => {
   };
   const makeCstPlaythroughIssue = (dict = cstPlaythroughIssueBackendDict) => {
     return (
-      playthroughIssueObjectFactory.createFromBackendDict(dict)
-    ) as CyclicStateTransitionsPlaythroughIssue;
+      PlaythroughIssue.createFromBackendDict(dict)
+    );
   };
   const makeEqPlaythroughIssue = (dict = eqPlaythroughIssueBackendDict) => {
     return (
-      playthroughIssueObjectFactory.createFromBackendDict(dict)
-    ) as EarlyQuitPlaythroughIssue;
+      PlaythroughIssue.createFromBackendDict(dict)
+    );
   };
   const makeMisPlaythroughIssue = (dict = misPlaythroughIssueBackendDict) => {
     return (
-      playthroughIssueObjectFactory.createFromBackendDict(dict)) as
-       MultipleIncorrectSubmissionsPlaythroughIssue;
+      PlaythroughIssue.createFromBackendDict(dict));
   };
 
   it('should initialize successfully using default test values', () => {
@@ -331,8 +329,10 @@ describe('Exploration improvements task registrar service', () => {
 
     it('should throw if CST playthrough issue maps to an unknown state', () => {
       delete statesBackendDict.End;
-      cstPlaythroughIssueBackendDict.issue_customization_args
-        .state_names.value = ['Introduction', 'End'];
+      (
+        cstPlaythroughIssueBackendDict.issue_customization_args as
+         CyclicStateTransitionsCustomizationArgs
+      ).state_names.value = ['Introduction', 'End'];
       expect(
         () => taskRegistryService.initialize(
           config, makeStates(), makeExpStats(), [], new Map(), new Map(),
@@ -343,8 +343,10 @@ describe('Exploration improvements task registrar service', () => {
 
     it('should throw if EQ playthrough issue maps to an unknown state', () => {
       delete statesBackendDict.End;
-      eqPlaythroughIssueBackendDict.issue_customization_args
-        .state_name.value = 'End';
+      (
+        eqPlaythroughIssueBackendDict.issue_customization_args as
+         EarlyQuitCustomizationArgs
+      ).state_name.value = 'End';
       expect(
         () => taskRegistryService.initialize(
           config, makeStates(), makeExpStats(), [], new Map(), new Map(),
@@ -355,8 +357,10 @@ describe('Exploration improvements task registrar service', () => {
 
     it('should throw if MIS playthrough issue maps to an unknown state', () => {
       delete statesBackendDict.End;
-      misPlaythroughIssueBackendDict.issue_customization_args
-        .state_name.value = 'End';
+      (
+        misPlaythroughIssueBackendDict.issue_customization_args as
+        MultipleIncorrectSubmissionsCustomizationArgs
+      ).state_name.value = 'End';
       expect(
         () => taskRegistryService.initialize(
           config, makeStates(), makeExpStats(), [], new Map(), new Map(),

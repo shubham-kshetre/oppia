@@ -26,11 +26,11 @@ import {
   CyclicStateTransitionsCustomizationArgs,
   EarlyQuitCustomizationArgs,
   MultipleIncorrectSubmissionsCustomizationArgs
-} from 'domain/statistics/PlaythroughIssueObjectFactory';
-import { LearnerAction, LearnerActionObjectFactory } from
-  'domain/statistics/LearnerActionObjectFactory';
-import { Playthrough, PlaythroughObjectFactory } from
-  'domain/statistics/PlaythroughObjectFactory';
+} from 'domain/statistics/playthrough-issue.model';
+import { LearnerAction } from
+  'domain/statistics/learner-action.model';
+import { Playthrough } from
+  'domain/statistics/playthrough.model';
 import { PlaythroughBackendApiService } from
   'domain/statistics/playthrough-backend-api.service';
 import { ServicesConstants } from 'services/services.constants';
@@ -190,9 +190,8 @@ export class PlaythroughService {
 
   constructor(
       private explorationFeaturesService: ExplorationFeaturesService,
-      private learnerActionObjectFactory: LearnerActionObjectFactory,
       private playthroughBackendApiService: PlaythroughBackendApiService,
-      private playthroughObjectFactory: PlaythroughObjectFactory) {}
+  ) {}
 
   initSession(
       explorationId: string, explorationVersion: number,
@@ -209,7 +208,7 @@ export class PlaythroughService {
     }
 
     this.recordedLearnerActions = [
-      this.learnerActionObjectFactory.createNewExplorationStartAction({
+      LearnerAction.createNewExplorationStartAction({
         state_name: {value: initStateName},
       })
     ];
@@ -231,7 +230,7 @@ export class PlaythroughService {
     }
 
     this.recordedLearnerActions.push(
-      this.learnerActionObjectFactory.createNewAnswerSubmitAction({
+      LearnerAction.createNewAnswerSubmitAction({
         state_name: {value: stateName},
         dest_state_name: {value: destStateName},
         interaction_id: {value: interactionId},
@@ -251,7 +250,7 @@ export class PlaythroughService {
     }
 
     this.recordedLearnerActions.push(
-      this.learnerActionObjectFactory.createNewExplorationQuitAction({
+      LearnerAction.createNewExplorationQuitAction({
         state_name: {value: stateName},
         time_spent_in_state_in_msecs: {value: 1000 * timeSpentInStateSecs}
       }));
@@ -282,19 +281,19 @@ export class PlaythroughService {
    */
   private createNewPlaythrough(): Playthrough | null {
     if (this.misTracker && this.misTracker.foundAnIssue()) {
-      return this.playthroughObjectFactory
+      return Playthrough
         .createNewMultipleIncorrectSubmissionsPlaythrough(
           this.explorationId, this.explorationVersion,
           this.misTracker.generateIssueCustomizationArgs(),
           this.recordedLearnerActions);
     } else if (this.cstTracker && this.cstTracker.foundAnIssue()) {
-      return this.playthroughObjectFactory
+      return Playthrough
         .createNewCyclicStateTransitionsPlaythrough(
           this.explorationId, this.explorationVersion,
           this.cstTracker.generateIssueCustomizationArgs(),
           this.recordedLearnerActions);
     } else if (this.eqTracker && this.eqTracker.foundAnIssue()) {
-      return this.playthroughObjectFactory
+      return Playthrough
         .createNewEarlyQuitPlaythrough(
           this.explorationId, this.explorationVersion,
           this.eqTracker.generateIssueCustomizationArgs(),

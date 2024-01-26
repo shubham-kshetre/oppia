@@ -29,6 +29,7 @@ import { Question, QuestionBackendDict, QuestionObjectFactory } from 'domain/que
 import { ActiveContributionDict, TranslationSuggestionReviewModalComponent } from '../modal-templates/translation-suggestion-review-modal.component';
 import { ContributorDashboardConstants } from 'pages/contributor-dashboard-page/contributor-dashboard-page.constants';
 import { QuestionSuggestionReviewModalComponent } from '../modal-templates/question-suggestion-review-modal.component';
+import { TranslationLanguageService } from 'pages/exploration-editor-page/translation-tab/services/translation-language.service';
 import { TranslationTopicService } from 'pages/exploration-editor-page/translation-tab/services/translation-topic.service';
 import { FormatRtePreviewPipe } from 'filters/format-rte-preview.pipe';
 import { UserService } from 'services/user.service';
@@ -39,9 +40,10 @@ import { ContributionOpportunitiesService } from '../services/contribution-oppor
 import { OpportunitiesListComponent } from '../opportunities-list/opportunities-list.component';
 import { PlatformFeatureService } from 'services/platform-feature.service';
 import { HtmlLengthService } from 'services/html-length.service';
+import { HtmlEscaperService } from 'services/html-escaper.service';
 
 export interface Suggestion {
-  change: {
+  change_cmd: {
     skill_id: string;
     content_html: string;
     translation_html: string | string[];
@@ -174,10 +176,12 @@ export class ContributionsAndReview
     private ngbModal: NgbModal,
     private questionObjectFactory: QuestionObjectFactory,
     private skillBackendApiService: SkillBackendApiService,
+    private translationLanguageService: TranslationLanguageService,
     private translationTopicService: TranslationTopicService,
     private userService: UserService,
     private featureService: PlatformFeatureService,
-    private htmlLengthService: HtmlLengthService
+    private htmlLengthService: HtmlLengthService,
+    private htmlEscaperService: HtmlEscaperService
   ) {}
 
   getQuestionContributionsSummary(
@@ -198,7 +202,7 @@ export class ContributionsAndReview
       const requiredData = {
         id: suggestion.suggestion_id,
         heading: this.formatRtePreviewPipe.transform(
-          suggestion.change.question_dict.question_state_data.content.html),
+          suggestion.change_cmd.question_dict.question_state_data.content.html),
         subheading: subheading,
         labelText: this.SUGGESTION_LABELS[suggestion.status].text,
         labelColor: this.SUGGESTION_LABELS[suggestion.status].color,
@@ -246,7 +250,7 @@ export class ContributionsAndReview
         translationWordCount: (
           this.isReviewTranslationsTab() && this.activeExplorationId) ? (
             this.htmlLengthService.computeHtmlLengthInWords(
-              suggestion.change.content_html)) : undefined
+              suggestion.change_cmd.content_html)) : undefined
       };
 
       translationContributionsSummaryList.push(requiredData);
@@ -255,12 +259,13 @@ export class ContributionsAndReview
   }
 
   getTranslationSuggestionHeading(suggestion: Suggestion): string {
-    const changeTranslation = suggestion.change.translation_html;
+    const changeTranslation = suggestion.change_cmd.translation_html;
 
-    if (Array.isArray(changeTranslation)) {
-      return this.formatRtePreviewPipe.transform(', ');
-    }
-    return this.formatRtePreviewPipe.transform(changeTranslation);
+    return this.htmlEscaperService.escapedStrToUnescapedStr(
+      this.formatRtePreviewPipe.transform(
+        Array.isArray(changeTranslation) ? ', ' : changeTranslation
+      )
+    );
   }
 
   resolveSuggestionSuccess(suggestionId: string): void {
@@ -279,7 +284,7 @@ export class ContributionsAndReview
     const suggestionId = suggestion.suggestion_id;
     const updatedQuestion = (
       question || this.questionObjectFactory.createFromBackendDict(
-        suggestion.change.question_dict));
+        suggestion.change_cmd.question_dict));
 
     const modalRef = this.ngbModal.open(
       QuestionSuggestionReviewModalComponent, {
@@ -377,7 +382,7 @@ export class ContributionsAndReview
       var contribution = this.contributions[suggestionId];
       suggestionIdToContribution[suggestionId] = contribution;
     }
-    const skillId = suggestion.change.skill_id;
+    const skillId = suggestion.change_cmd.skill_id;
 
     this.contextService.setCustomEntityContext(
       AppConstants.IMAGE_CONTEXT.QUESTION_SUGGESTIONS, skillId);
@@ -443,9 +448,9 @@ export class ContributionsAndReview
       tabType, subType);
 
     this.activeTabSubtype = subType;
+    this.contributionAndReviewService.setActiveTabType(tabType);
+    this.contributionAndReviewService.setActiveSuggestionType(subType);
     if (!this.isAccomplishmentsTabActive()) {
-      this.contributionAndReviewService.setActiveTabType(tabType);
-      this.contributionAndReviewService.setActiveSuggestionType(subType);
       this.activeExplorationId = null;
       this.contributionOpportunitiesService
         .reloadOpportunitiesEventEmitter.emit();
@@ -490,6 +495,7 @@ export class ContributionsAndReview
 
   loadContributions(shouldResetOffset: boolean):
     Promise<GetOpportunitiesResponse> {
+    this.contributions = {};
     if (!this.activeTabType || !this.activeTabSubtype) {
       return new Promise((resolve, reject) => {
         resolve({opportunitiesDicts: [], more: false});
@@ -563,6 +569,8 @@ export class ContributionsAndReview
     this.contributions = {};
     this.userDetailsLoading = true;
     this.userIsLoggedIn = false;
+    this.languageCode = (
+      this.translationLanguageService.getActiveLanguageCode());
     this.activeTabType = '';
     this.activeTabSubtype = '';
     this.dropdownShown = false;
@@ -599,13 +607,13 @@ export class ContributionsAndReview
       }
     ];
 
-    this.translationTopicService.setActiveTopicName(
-      ContributorDashboardConstants.DEFAULT_OPPORTUNITY_TOPIC_NAME);
-
     // Reset active exploration when changing topics.
     this.directiveSubscriptions.add(
       this.translationTopicService.onActiveTopicChanged.subscribe(
-        () => this.activeExplorationId = null));
+        () => {
+          this.activeExplorationId = null;
+          this.loadOpportunities();
+        }));
 
     this.userService.getUserInfoAsync().then((userInfo) => {
       this.userIsLoggedIn = userInfo.isLoggedIn();
@@ -673,7 +681,9 @@ export class ContributionsAndReview
         [this.TAB_TYPE_REVIEWS]: shouldResetOffset => {
           return this.contributionAndReviewService
             .getReviewableQuestionSuggestionsAsync(
-              shouldResetOffset, this.reviewableQuestionsSortKey);
+              shouldResetOffset,
+              this.reviewableQuestionsSortKey,
+              this.translationTopicService.getActiveTopicName());
         }
       },
       [this.SUGGESTION_TYPE_TRANSLATE]: {

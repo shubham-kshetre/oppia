@@ -481,8 +481,8 @@ describe('Questions List Component', () => {
     ' validation errors', () => {
     component.question = question;
     spyOn(alertsService, 'addWarning');
-    spyOn(
-      component.question, 'getValidationErrorMessage').and.returnValue('Error');
+    spyOn(questionValidationService, 'getValidationErrorMessage')
+      .and.returnValue('Error');
     spyOn(component.question, 'getUnaddressedMisconceptionNames')
       .and.returnValue(['misconception1', 'misconception2']);
 
@@ -490,6 +490,22 @@ describe('Questions List Component', () => {
 
     expect(alertsService.addWarning).toHaveBeenCalledWith('Error');
   });
+
+  it('should show an error and not save question if there are' +
+    ' errors from question backend api service', fakeAsync(() => {
+    component.question = question;
+    component.questionIsBeingUpdated = false;
+    spyOn(editableQuestionBackendApiService, 'createQuestionAsync')
+      .and.returnValue(Promise.reject('Error'));
+    spyOn(component.question, 'getUnaddressedMisconceptionNames')
+      .and.returnValue([]);
+    spyOn(alertsService, 'addWarning');
+
+    component.saveAndPublishQuestion(null);
+    tick();
+
+    expect(alertsService.addWarning).toHaveBeenCalledWith('Error');
+  }));
 
   it('should create new question in the backend if there are no validation' +
   ' error on saving and publishing a question when question is not already' +
@@ -514,7 +530,8 @@ describe('Questions List Component', () => {
           difficulty: 1
         }]);
 
-    spyOn(component.question, 'getValidationErrorMessage').and.returnValue('');
+    spyOn(questionValidationService, 'getValidationErrorMessage')
+      .and.returnValue('');
     spyOn(component.question, 'getUnaddressedMisconceptionNames')
       .and.returnValue([]);
     spyOn(editableQuestionBackendApiService, 'createQuestionAsync')
@@ -552,7 +569,7 @@ describe('Questions List Component', () => {
       component.question = question;
       component.questionIsBeingUpdated = true;
 
-      spyOn(component.question, 'getValidationErrorMessage')
+      spyOn(questionValidationService, 'getValidationErrorMessage')
         .and.returnValue('');
       spyOn(component.question, 'getUnaddressedMisconceptionNames')
         .and.returnValue([]);
@@ -574,7 +591,8 @@ describe('Questions List Component', () => {
     ' is being updated', fakeAsync(() => {
     component.question = question;
     component.questionIsBeingUpdated = true;
-    spyOn(component.question, 'getValidationErrorMessage').and.returnValue('');
+    spyOn(questionValidationService, 'getValidationErrorMessage')
+      .and.returnValue('');
     spyOn(component.question, 'getUnaddressedMisconceptionNames')
       .and.returnValue([]);
     spyOn(questionUndoRedoService, 'hasChanges').and.returnValue(true);
@@ -599,7 +617,8 @@ describe('Questions List Component', () => {
     ' a question', fakeAsync(() => {
     component.question = question;
     component.questionIsBeingUpdated = true;
-    spyOn(component.question, 'getValidationErrorMessage').and.returnValue('');
+    spyOn(questionValidationService, 'getValidationErrorMessage')
+      .and.returnValue('');
     spyOn(component.question, 'getUnaddressedMisconceptionNames')
       .and.returnValue([]);
     spyOn(questionUndoRedoService, 'hasChanges').and.returnValue(true);

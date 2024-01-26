@@ -42,11 +42,9 @@ import { SuccessiveIncorrectAnswersTask } from
   'domain/improvements/successive-incorrect-answers-task.model';
 import { State } from 'domain/state/StateObjectFactory';
 import {
-  CyclicStateTransitionsPlaythroughIssue,
-  EarlyQuitPlaythroughIssue,
-  MultipleIncorrectSubmissionsPlaythroughIssue,
-  PlaythroughIssue
-} from 'domain/statistics/PlaythroughIssueObjectFactory';
+  PlaythroughIssue,
+  PlaythroughIssueType,
+} from 'domain/statistics/playthrough-issue.model';
 import { ExplorationStats } from
   'domain/statistics/exploration-stats.model';
 import { StateStats } from 'domain/statistics/state-stats-model';
@@ -56,9 +54,9 @@ type IflTask = IneffectiveFeedbackLoopTask;
 type NgrTask = NeedsGuidingResponsesTask;
 type SiaTask = SuccessiveIncorrectAnswersTask;
 
-type CstPlaythroughIssue = CyclicStateTransitionsPlaythroughIssue;
-type EqPlaythroughIssue = EarlyQuitPlaythroughIssue;
-type MisPlaythroughIssue = MultipleIncorrectSubmissionsPlaythroughIssue;
+type CstPlaythroughIssue = PlaythroughIssue;
+type EqPlaythroughIssue = PlaythroughIssue;
+type MisPlaythroughIssue = PlaythroughIssue;
 
 /**
  * Holds shallow references to the state-specific statistics used to support the
@@ -198,12 +196,13 @@ export class ExplorationImprovementsTaskRegistryService {
       const playthroughIssuesByType = group(
         playthroughIssuesByStateName.get(stateName) || [], p => p.issueType);
       const cstPlaythroughIssues = (
-        playthroughIssuesByType.get('CyclicStateTransitions')
+        playthroughIssuesByType.get(PlaythroughIssueType.CyclicStateTransitions)
       ) as CstPlaythroughIssue[];
-      const eqPlaythroughIssues = (
-        playthroughIssuesByType.get('EarlyQuit') as EqPlaythroughIssue[]);
-      const misPlaythroughIssues = (
-        playthroughIssuesByType.get('MultipleIncorrectSubmissions')
+      const eqPlaythroughIssues = playthroughIssuesByType.get(
+        PlaythroughIssueType.EarlyQuit
+      ) as EqPlaythroughIssue[];
+      const misPlaythroughIssues = playthroughIssuesByType.get(
+        PlaythroughIssueType.MultipleIncorrectSubmissions
       ) as MisPlaythroughIssue[];
 
       this.registerNewStateTasks(
