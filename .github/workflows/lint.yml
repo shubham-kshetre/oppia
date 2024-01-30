@@ -29,9 +29,6 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
 
-      - name: Build Docker images
-        run: make build
-
       - name: Third Party Size Check
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
         run: docker compose run --no-deps --entrypoint "/bin/sh -c 'git config --global --add safe.directory /app/oppia && python -m scripts.third_party_size_check $PYTHON_ARGS'" dev-server || make stop
