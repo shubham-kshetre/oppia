@@ -20,37 +20,24 @@ jobs:
         shard: ['other']
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.8.15'
-          architecture: 'x64'
-          cache: 'pip'
-          cache-dependency-path: |
-            requirements.in
-            requirements.txt
-            requirements_dev.in
-            requirements_dev.txt
+
       - uses: ./.github/actions/merge
-      - name: Cache node modules and third_party/static
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-node-modules
-        with:
-          path: |
-            /home/runner/work/oppia/yarn_cache
-            /home/runner/work/oppia/oppia/third_party/static
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('yarn.lock', 'dependencies.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - uses: ./.github/actions/install-oppia-dependencies
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
       - name: Third Party Size Check
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: python -m scripts.third_party_size_check
-      - name: Run Lint Checks
+        run: docker compose run --no-deps --entrypoint "/bin/sh -c 'git config --global --add safe.directory /app/oppia && python -m scripts.third_party_size_check $PYTHON_ARGS'" dev-server || make stop
+
+
+      - name: Run Lint Tests
         if: startsWith(github.head_ref, 'update-changelog-for-release') == false
-        run: PYTHONIOENCODING=utf-8 python -m scripts.linters.pre_commit_linter --shard ${{ matrix.shard }} --verbose
+        run: docker compose run --no-deps --entrypoint "/bin/sh -c 'git config --global --add safe.directory /app/oppia && python -m scripts.linters.pre_commit_linter $(PYTHON_ARGS)'" dev-server || make stop
+
       - name: Report failure if failed on oppia/oppia develop branch
         if: ${{ failure() && github.event_name == 'push' && github.repository == 'oppia/oppia' && github.ref == 'refs/heads/develop'}}
         uses: ./.github/actions/send-webhook-notification
